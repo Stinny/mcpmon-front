@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { Eye } from "react-feather";
 import { useLoginMutation } from "../../api/apiSlice";
 import { setCredentials } from "../../features/authSlice";
 
@@ -31,6 +32,11 @@ function Login() {
   return (
     <div className="px-12 py-12 flex justify-center items-start min-h-screen">
       <div className="max-w-md w-full">
+        <Link to="/" className="flex items-center justify-center space-x-2 mb-12">
+          <Eye size={24} className="text-black" />
+          <span className="text-2xl font-medium text-black">MCPmon</span>
+        </Link>
+
         <h1 className="text-lg font-normal text-black mb-8">
           Log in to your account
         </h1>

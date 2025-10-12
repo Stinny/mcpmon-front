@@ -25,9 +25,13 @@ function AppContent() {
     location.pathname === route || location.pathname.startsWith(route + '/')
   )
 
+  // Hide navbar on login/signup pages
+  const authRoutes = ['/login', '/signup']
+  const showNavbar = !showSidebar && !authRoutes.includes(location.pathname)
+
   return (
     <div className="min-h-screen bg-white font-sans">
-      {!showSidebar && <Navbar />}
+      {showNavbar && <Navbar />}
       {showSidebar && <Sidebar />}
       <main className={showSidebar ? 'ml-64' : ''}>
         <Routes>
