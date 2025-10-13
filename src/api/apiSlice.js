@@ -38,6 +38,20 @@ export const apiSlice = createApi({
         body: userData,
       }),
     }),
+    updateProfile: builder.mutation({
+      query: (profileData) => ({
+        url: 'auth/profile',
+        method: 'PUT',
+        body: profileData,
+      }),
+    }),
+    updateAlertPreferences: builder.mutation({
+      query: (alertData) => ({
+        url: 'auth/alerts',
+        method: 'PUT',
+        body: alertData,
+      }),
+    }),
     // Monitor endpoints
     getMonitors: builder.query({
       query: (params) => {
@@ -130,6 +144,8 @@ export const {
   useScanChannelMutation,
   useLoginMutation,
   useSignupMutation,
+  useUpdateProfileMutation,
+  useUpdateAlertPreferencesMutation,
   useGetMonitorsQuery,
   useGetMonitorQuery,
   useCreateMonitorMutation,

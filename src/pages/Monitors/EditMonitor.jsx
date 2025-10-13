@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "react-feather";
 import { useGetMonitorQuery, useUpdateMonitorMutation } from "../../api/apiSlice";
+import AuthConfig from "../../components/AuthConfig";
 
 function EditMonitor() {
   const { id } = useParams();
@@ -12,6 +13,9 @@ function EditMonitor() {
 
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [authType, setAuthType] = useState("none");
+  const [authConfig, setAuthConfig] = useState({});
+  const [isAuthEdited, setIsAuthEdited] = useState(false);
   const [error, setError] = useState("");
 
   // Populate form when monitor data is loaded
@@ -19,15 +23,36 @@ function EditMonitor() {
     if (data?.data) {
       setName(data.data.name);
       setUrl(data.data.url);
+      setAuthType(data.data.authType || "none");
+      // Note: authConfig won't be returned from backend for security
+      // User must re-enter credentials to update
+      setAuthConfig({});
     }
   }, [data]);
+
+  const handleAuthConfigChange = (newConfig) => {
+    setAuthConfig(newConfig);
+    setIsAuthEdited(true);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-      await updateMonitor({ id, name, url }).unwrap();
+      const monitorData = {
+        id,
+        name,
+        url,
+        authType,
+      };
+
+      // Only include authConfig if user actually edited it
+      if (isAuthEdited) {
+        monitorData.authConfig = authType !== "none" ? authConfig : null;
+      }
+
+      await updateMonitor(monitorData).unwrap();
       navigate("/monitors");
     } catch (err) {
       setError(err?.data?.message || "Failed to update monitor. Please try again.");
@@ -114,6 +139,31 @@ function EditMonitor() {
               placeholder="https://mcp.example.com"
             />
           </div>
+
+          <div>
+            <label htmlFor="authType" className="block text-sm text-black mb-2">
+              Authentication Type
+            </label>
+            <select
+              id="authType"
+              name="authType"
+              value={authType}
+              onChange={(e) => setAuthType(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+            >
+              <option value="none">None</option>
+              <option value="api-key">API Key</option>
+              <option value="bearer-token">Bearer Token</option>
+              <option value="custom-headers">Custom Headers</option>
+            </select>
+          </div>
+
+          <AuthConfig
+            authType={authType}
+            authConfig={authConfig}
+            onChange={handleAuthConfigChange}
+            hasExistingAuth={authType !== "none" && data?.data?.authType !== "none"}
+          />
 
           <div className="flex gap-3">
             <button

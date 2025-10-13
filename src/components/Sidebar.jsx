@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { Home, Monitor, Settings, LogOut, Activity, Eye } from "react-feather";
+import { Home, Monitor, Settings, LogOut } from "react-feather";
+import { TbDeviceHeartMonitor } from "react-icons/tb";
 import { logout } from "../features/authSlice";
 
 function Sidebar() {
@@ -20,9 +21,9 @@ function Sidebar() {
     <div className="w-64 h-screen bg-white border-r border-gray-200 fixed left-0 top-0 flex flex-col">
       {/* Logo */}
       <div className="px-6 py-6 border-b border-gray-200">
-        <Link to="/home" className="flex items-center space-x-2">
-          <Eye size={24} className="text-black" />
-          <span className="text-xl font-semibold text-black">MCPmon</span>
+        <Link to="/home" className="flex items-center space-x-0">
+          <TbDeviceHeartMonitor size={20} className="text-black" />
+          <span className="text-lg font-medium text-black">MCPmon</span>
         </Link>
       </div>
 

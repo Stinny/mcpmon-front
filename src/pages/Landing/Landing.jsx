@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import {
   Activity,
   Bell,
@@ -9,12 +10,24 @@ import {
 } from "react-feather";
 
 function Landing() {
+  const [email, setEmail] = useState("");
+  const [subscribeStatus, setSubscribeStatus] = useState("");
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email) {
+      // TODO: Implement email subscription logic
+      setSubscribeStatus("Thanks for subscribing!");
+      setEmail("");
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="max-w-5xl mx-auto px-6 py-24 text-center">
+      <section className="max-w-4xl mx-auto px-6 py-24 text-center">
         <h1 className="text-6xl font-bold text-black mb-6 leading-tight">
-          The easiest way to monitor your remote MCP servers
+          Easiest way to monitor your MCP servers
         </h1>
         <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
           Keep your remote MCP servers online with reliable uptime monitoring,
@@ -40,8 +53,8 @@ function Landing() {
       <section className="max-w-6xl mx-auto px-6 py-20">
         <div className="grid md:grid-cols-3 gap-8">
           <div className="p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
-              <Activity className="text-white" size={24} />
+            <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <Activity className="text-black" size={24} />
             </div>
             <h3 className="text-xl font-semibold text-black mb-3">
               Real-time Monitoring
@@ -54,8 +67,8 @@ function Landing() {
           </div>
 
           <div className="p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
-              <Bell className="text-white" size={24} />
+            <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <Bell className="text-black" size={24} />
             </div>
             <h3 className="text-xl font-semibold text-black mb-3">
               Instant Alerts
@@ -67,8 +80,8 @@ function Landing() {
           </div>
 
           <div className="p-6 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-            <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center mb-4">
-              <BarChart2 className="text-white" size={24} />
+            <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-4">
+              <BarChart2 className="text-black" size={24} />
             </div>
             <h3 className="text-xl font-semibold text-black mb-3">
               Performance Insights
@@ -138,6 +151,34 @@ function Landing() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Email Subscribe Section */}
+      <section className="max-w-2xl mx-auto px-6 py-20 text-center">
+        <p className="text-sm text-gray-500 mb-4">
+          Stay updated with the latest news
+        </p>
+        <form onSubmit={handleSubscribe} className="max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              required
+              className="flex-1 px-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+            />
+            <button
+              type="submit"
+              className="px-6 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 transition-colors rounded-lg whitespace-nowrap"
+            >
+              Subscribe
+            </button>
+          </div>
+          {subscribeStatus && (
+            <p className="mt-3 text-sm text-green-600">{subscribeStatus}</p>
+          )}
+        </form>
       </section>
 
       {/* CTA Section */}

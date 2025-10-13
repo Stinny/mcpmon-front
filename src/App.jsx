@@ -7,6 +7,7 @@ import Landing from './pages/Landing'
 import Home from './pages/Home/Home'
 import Login from './pages/Login/Login'
 import Signup from './pages/Signup/Signup'
+import Pricing from './pages/Pricing/Pricing'
 import Monitors from './pages/Monitors/Monitors'
 import AddMonitor from './pages/Monitors/AddMonitor'
 import EditMonitor from './pages/Monitors/EditMonitor'
@@ -25,8 +26,8 @@ function AppContent() {
     location.pathname === route || location.pathname.startsWith(route + '/')
   )
 
-  // Hide navbar on login/signup pages
-  const authRoutes = ['/login', '/signup']
+  // Hide navbar on login/signup/pricing/documentation pages
+  const authRoutes = ['/login', '/signup', '/pricing', '/documentation']
   const showNavbar = !showSidebar && !authRoutes.includes(location.pathname)
 
   return (
@@ -38,6 +39,7 @@ function AppContent() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/documentation" element={<Documentation />} />
           <Route path="/support" element={<Support />} />
           <Route

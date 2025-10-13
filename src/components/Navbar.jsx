@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Activity, Eye, LogIn } from "react-feather";
+import { LogIn } from "react-feather";
+import { TbDeviceHeartMonitor } from "react-icons/tb";
 
 function Navbar() {
   return (
@@ -7,9 +8,9 @@ function Navbar() {
       <nav className="max-w-6xl mx-auto border border-gray-200 bg-white rounded-lg shadow-sm">
         <div className="px-4 py-2">
           <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-1">
-              <Eye size={20} className="text-black" />
-              <span className="text-lg font-bold text-black">MCPmon</span>
+            <Link to="/" className="flex items-center space-x-0">
+              <TbDeviceHeartMonitor size={20} className="text-black" />
+              <span className="text-lg font-medium text-black">MCPmon</span>
             </Link>
 
             <div className="flex items-center space-x-6">
