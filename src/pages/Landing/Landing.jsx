@@ -27,7 +27,7 @@ function Landing() {
         setEmail("");
       } catch (error) {
         setSubscribeStatus(
-          error?.data?.message || "Failed to subscribe. Please try again."
+          error?.data?.message || "Failed to subscribe. Please try again.",
         );
         setIsError(true);
       }
@@ -89,8 +89,8 @@ function Landing() {
               Dead Simple Monitoring for MCP Servers
             </h1>
             <p className="text-sm md:text-md text-gray-600 mb-6 md:mb-8">
-              Uptime monitoring built for remote MCP servers. Free to use while
-              we build based on your feedback.
+              Uptime monitoring built for remote MCP servers. Keep your AI
+              integrations reliable. Free to use while in beta.
             </p>
             <div className="flex items-center gap-2 mb-8">
               <Link
