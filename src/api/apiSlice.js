@@ -52,6 +52,36 @@ export const apiSlice = createApi({
         body: alertData,
       }),
     }),
+    deleteAccount: builder.mutation({
+      query: () => ({
+        url: 'auth/account',
+        method: 'DELETE',
+      }),
+    }),
+    // Feedback endpoint
+    submitFeedback: builder.mutation({
+      query: (feedbackData) => ({
+        url: 'feedback',
+        method: 'POST',
+        body: feedbackData,
+      }),
+    }),
+    // Contact endpoint
+    submitContact: builder.mutation({
+      query: (contactData) => ({
+        url: 'contact',
+        method: 'POST',
+        body: contactData,
+      }),
+    }),
+    // Subscribe endpoint
+    subscribe: builder.mutation({
+      query: (email) => ({
+        url: 'subscribe',
+        method: 'POST',
+        body: { email },
+      }),
+    }),
     // Monitor endpoints
     getMonitors: builder.query({
       query: (params) => {
@@ -89,6 +119,10 @@ export const apiSlice = createApi({
     }),
     getMonitorStats: builder.query({
       query: (id) => `monitors/${id}/stats`,
+    }),
+    getDashboardStats: builder.query({
+      query: () => 'monitors/dashboard/stats',
+      providesTags: ['Monitor'],
     }),
     pauseMonitor: builder.mutation({
       query: (id) => ({
@@ -146,12 +180,17 @@ export const {
   useSignupMutation,
   useUpdateProfileMutation,
   useUpdateAlertPreferencesMutation,
+  useDeleteAccountMutation,
+  useSubmitFeedbackMutation,
+  useSubmitContactMutation,
+  useSubscribeMutation,
   useGetMonitorsQuery,
   useGetMonitorQuery,
   useCreateMonitorMutation,
   useUpdateMonitorMutation,
   useDeleteMonitorMutation,
   useGetMonitorStatsQuery,
+  useGetDashboardStatsQuery,
   usePauseMonitorMutation,
   useResumeMonitorMutation,
   useUpdateMonitorCacheMutation,

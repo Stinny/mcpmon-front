@@ -9,6 +9,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isEmailNotVerified, setIsEmailNotVerified] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -17,6 +18,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsEmailNotVerified(false);
 
     try {
       const response = await login({ email, password }).unwrap();
@@ -25,13 +27,45 @@ function Login() {
       dispatch(setCredentials({ user, token }));
       navigate("/home");
     } catch (err) {
-      setError(err?.data?.message || "Failed to log in. Please try again.");
+      const errorMessage =
+        err?.data?.message || "Failed to log in. Please try again.";
+      setError(errorMessage);
+
+      // Check if error is due to unverified email
+      if (err?.data?.code === "EMAIL_NOT_VERIFIED") {
+        setIsEmailNotVerified(true);
+      }
+    }
+  };
+
+  const handleResendVerification = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await fetch(`${API_URL}/api/auth/resend-verification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setError("");
+        setIsEmailNotVerified(false);
+        alert("Verification email sent! Please check your inbox.");
+      } else {
+        alert(data.message || "Failed to resend verification email");
+      }
+    } catch (err) {
+      alert("Failed to resend verification email. Please try again.");
     }
   };
 
   return (
-    <div className="px-12 py-12 flex justify-center items-start min-h-screen">
-      <div className="max-w-md w-full">
+    <div className="px-4 md:px-12 py-12 flex justify-center items-start min-h-screen">
+      <div className="max-w-sm w-full">
         <Link
           to="/"
           className="flex items-center justify-center space-x-0 mb-12"
@@ -40,13 +74,24 @@ function Login() {
           <span className="text-lg font-medium text-black">MCPmon</span>
         </Link>
 
-        <h1 className="text-lg font-normal text-black mb-8">
-          Log in to your account
-        </h1>
+        <h1 className="text-lg font-normal text-black mb-2">Log In</h1>
+        <p className="text-sm text-gray-600 mb-8">
+          Welcome back! Enter your details to log in.
+        </p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
             {error}
+            {isEmailNotVerified && email && (
+              <div className="mt-2">
+                <button
+                  onClick={handleResendVerification}
+                  className="text-sm text-red-800 hover:text-red-900 underline"
+                >
+                  Resend verification email
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -94,7 +139,7 @@ function Login() {
           </div>
         </form>
 
-        <div className="mt-6 text-sm text-gray-500">
+        <div className="mt-6 text-sm text-gray-600">
           Don't have an account?{" "}
           <Link to="/signup" className="text-black hover:underline">
             Sign up

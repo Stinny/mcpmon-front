@@ -32,7 +32,7 @@ function Pricing() {
           {/* Price Badge */}
           <div className="mb-8">
             <div className="inline-block px-4 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-full mb-4">
-              Free
+              Beta
             </div>
             <div className="text-4xl font-normal text-black mb-2">TBA</div>
             <p className="text-sm text-gray-500">per month</p>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "react-feather";
-import { useGetMonitorQuery, useUpdateMonitorMutation } from "../../api/apiSlice";
-import AuthConfig from "../../components/AuthConfig";
+import {
+  useGetMonitorQuery,
+  useUpdateMonitorMutation,
+} from "../../api/apiSlice";
 
 function EditMonitor() {
   const { id } = useParams();
@@ -13,9 +15,7 @@ function EditMonitor() {
 
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
-  const [authType, setAuthType] = useState("none");
-  const [authConfig, setAuthConfig] = useState({});
-  const [isAuthEdited, setIsAuthEdited] = useState(false);
+  const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
   // Populate form when monitor data is loaded
@@ -23,17 +23,9 @@ function EditMonitor() {
     if (data?.data) {
       setName(data.data.name);
       setUrl(data.data.url);
-      setAuthType(data.data.authType || "none");
-      // Note: authConfig won't be returned from backend for security
-      // User must re-enter credentials to update
-      setAuthConfig({});
+      setDescription(data.data.description || "");
     }
   }, [data]);
-
-  const handleAuthConfigChange = (newConfig) => {
-    setAuthConfig(newConfig);
-    setIsAuthEdited(true);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,18 +36,15 @@ function EditMonitor() {
         id,
         name,
         url,
-        authType,
+        description,
       };
-
-      // Only include authConfig if user actually edited it
-      if (isAuthEdited) {
-        monitorData.authConfig = authType !== "none" ? authConfig : null;
-      }
 
       await updateMonitor(monitorData).unwrap();
       navigate("/monitors");
     } catch (err) {
-      setError(err?.data?.message || "Failed to update monitor. Please try again.");
+      setError(
+        err?.data?.message || "Failed to update monitor. Please try again.",
+      );
     }
   };
 
@@ -94,12 +83,10 @@ function EditMonitor() {
           className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-black mb-6"
         >
           <ArrowLeft size={16} />
-          Back to Monitors
+          Monitors
         </Link>
 
-        <h1 className="text-2xl font-normal text-black mb-8">
-          Edit Monitor
-        </h1>
+        <h1 className="text-2xl font-normal text-black mb-8">Edit Monitor</h1>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
@@ -110,7 +97,7 @@ function EditMonitor() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm text-black mb-2">
-              Monitor Name
+              Name
             </label>
             <input
               type="text"
@@ -122,6 +109,28 @@ function EditMonitor() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               placeholder="My MCP Server"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm text-black mb-2"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={150}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black resize-none"
+              placeholder="Brief description of this monitor (optional)"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              {description.length}/150
+            </p>
           </div>
 
           <div>
@@ -139,31 +148,6 @@ function EditMonitor() {
               placeholder="https://mcp.example.com"
             />
           </div>
-
-          <div>
-            <label htmlFor="authType" className="block text-sm text-black mb-2">
-              Authentication Type
-            </label>
-            <select
-              id="authType"
-              name="authType"
-              value={authType}
-              onChange={(e) => setAuthType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
-            >
-              <option value="none">None</option>
-              <option value="api-key">API Key</option>
-              <option value="bearer-token">Bearer Token</option>
-              <option value="custom-headers">Custom Headers</option>
-            </select>
-          </div>
-
-          <AuthConfig
-            authType={authType}
-            authConfig={authConfig}
-            onChange={handleAuthConfigChange}
-            hasExistingAuth={authType !== "none" && data?.data?.authType !== "none"}
-          />
 
           <div className="flex gap-3">
             <button

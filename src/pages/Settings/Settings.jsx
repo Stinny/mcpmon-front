@@ -1,20 +1,30 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Switch } from "antd";
-import { Edit2, X, Check } from "react-feather";
-import { selectCurrentUser, updateUser } from "../../features/authSlice";
+import { useNavigate } from "react-router-dom";
+import { Switch, Tabs, Modal } from "antd";
+import { Edit2, X, Check, Lock, Zap, Send, AlertTriangle } from "react-feather";
+import { SiSlack, SiDiscord } from "react-icons/si";
+import {
+  selectCurrentUser,
+  updateUser,
+  logout,
+} from "../../features/authSlice";
 import {
   useUpdateProfileMutation,
   useUpdateAlertPreferencesMutation,
+  useDeleteAccountMutation,
 } from "../../api/apiSlice";
 
 function Settings() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector(selectCurrentUser);
   const [updateProfile, { isLoading: isUpdatingProfile }] =
     useUpdateProfileMutation();
   const [updateAlertPreferences, { isLoading: isUpdatingAlerts }] =
     useUpdateAlertPreferencesMutation();
+  const [deleteAccount, { isLoading: isDeletingAccount }] =
+    useDeleteAccountMutation();
 
   // Edit mode states
   const [isEditingAccount, setIsEditingAccount] = useState(false);
@@ -36,8 +46,17 @@ function Settings() {
   });
 
   // Alerts data
-  const [emailAlerts, setEmailAlerts] = useState(user?.emailAlertsEnabled ?? true);
+  const [emailAlerts, setEmailAlerts] = useState(
+    user?.emailAlertsEnabled ?? true,
+  );
   const [smsAlerts, setSmsAlerts] = useState(user?.smsAlertsEnabled ?? false);
+
+  // Delete account modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [confirmationString, setConfirmationString] = useState("");
+  const [randomString, setRandomString] = useState("");
+  const [userInput, setUserInput] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
   // Update state when user data changes
   useEffect(() => {
@@ -121,237 +140,533 @@ function Settings() {
     setIsEditingAlerts(false);
   };
 
-  return (
-    <div className="px-12 py-12">
-      <h1 className="text-2xl font-normal text-black mb-8">Settings</h1>
+  // Generate random 6-letter string
+  const generateRandomString = () => {
+    const chars = "abcdefghijklmnopqrstuvwxyz";
+    let result = "";
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
 
-      <div className="max-w-2xl space-y-8">
-        {/* Account Section */}
-        <div className="border border-gray-200 rounded-lg p-6">
-          {accountError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
-              {accountError}
-            </div>
-          )}
-          {accountSuccess && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
-              {accountSuccess}
-            </div>
-          )}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-black">Account</h2>
-            {!isEditingAccount ? (
-              <button
-                onClick={() => setIsEditingAccount(true)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
-              >
-                <Edit2 size={14} />
-                Edit
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCancelAccount}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
-                >
-                  <X size={14} />
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveAccount}
-                  disabled={isUpdatingProfile}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Check size={14} />
-                  {isUpdatingProfile ? "Saving..." : "Save"}
-                </button>
+  const handleDeleteAccountClick = () => {
+    const random = generateRandomString();
+    setRandomString(random);
+    setConfirmationString(random);
+    setUserInput("");
+    setDeleteError("");
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteAccountConfirm = async () => {
+    if (userInput !== confirmationString) {
+      setDeleteError("The confirmation text doesn't match. Please try again.");
+      return;
+    }
+
+    try {
+      await deleteAccount().unwrap();
+
+      // Logout and redirect to landing page
+      dispatch(logout());
+      navigate("/");
+    } catch (err) {
+      setDeleteError(
+        err?.data?.message || "Failed to delete account. Please try again.",
+      );
+    }
+  };
+
+  const handleDeleteModalCancel = () => {
+    setIsDeleteModalOpen(false);
+    setUserInput("");
+    setDeleteError("");
+  };
+
+  const tabItems = [
+    {
+      key: "general",
+      label: "General",
+      children: (
+        <div className="max-w-2xl space-y-8">
+          {/* Account Section */}
+          <div className="border border-gray-200 rounded-lg p-6">
+            {accountError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+                {accountError}
               </div>
             )}
+            {accountSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
+                {accountSuccess}
+              </div>
+            )}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-black">Account</h2>
+              {!isEditingAccount ? (
+                <button
+                  onClick={() => setIsEditingAccount(true)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                >
+                  <Edit2 size={14} />
+                  Edit
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCancelAccount}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                  >
+                    <X size={14} />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAccount}
+                    disabled={isUpdatingProfile}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Check size={14} />
+                    {isUpdatingProfile ? "Saving..." : "Save"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Name</label>
+                {isEditingAccount ? (
+                  <input
+                    type="text"
+                    value={accountData.name}
+                    onChange={(e) =>
+                      setAccountData({ ...accountData, name: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="Your name"
+                  />
+                ) : (
+                  <p className="text-sm text-black">
+                    {accountData.name || "Not set"}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Email
+                </label>
+                {isEditingAccount ? (
+                  <input
+                    type="email"
+                    value={accountData.email}
+                    onChange={(e) =>
+                      setAccountData({ ...accountData, email: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="your@email.com"
+                  />
+                ) : (
+                  <p className="text-sm text-black">
+                    {accountData.email || "Not available"}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Phone Number
+                </label>
+                {isEditingAccount ? (
+                  <input
+                    type="tel"
+                    value={accountData.phone}
+                    onChange={(e) =>
+                      setAccountData({ ...accountData, phone: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="+1 (555) 123-4567"
+                  />
+                ) : (
+                  <p className="text-sm text-black">
+                    {accountData.phone || "Not set"}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  User ID
+                </label>
+                <p className="text-sm text-black font-mono">
+                  {user?.id || "Not available"}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Name</label>
-              {isEditingAccount ? (
-                <input
-                  type="text"
-                  value={accountData.name}
-                  onChange={(e) =>
-                    setAccountData({ ...accountData, name: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
-                  placeholder="Your name"
-                />
+          {/* Alerts Section */}
+          <div className="border border-gray-200 rounded-lg p-6">
+            {alertsError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+                {alertsError}
+              </div>
+            )}
+            {alertsSuccess && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
+                {alertsSuccess}
+              </div>
+            )}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium text-black">Alerts</h2>
+              {!isEditingAlerts ? (
+                <button
+                  onClick={() => setIsEditingAlerts(true)}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                >
+                  <Edit2 size={14} />
+                  Edit
+                </button>
               ) : (
-                <p className="text-sm text-black">
-                  {accountData.name || "Not set"}
-                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCancelAlerts}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                  >
+                    <X size={14} />
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAlerts}
+                    disabled={isUpdatingAlerts}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Check size={14} />
+                    {isUpdatingAlerts ? "Saving..." : "Save"}
+                  </button>
+                </div>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">Email</label>
-              {isEditingAccount ? (
-                <input
-                  type="email"
-                  value={accountData.email}
-                  onChange={(e) =>
-                    setAccountData({ ...accountData, email: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
-                  placeholder="your@email.com"
+            <div className="space-y-6">
+              <div className="flex items-start gap-3">
+                <Switch
+                  checked={emailAlerts}
+                  onChange={setEmailAlerts}
+                  disabled={!isEditingAlerts}
+                  size="small"
+                  style={{
+                    backgroundColor: emailAlerts ? "#000000" : undefined,
+                  }}
                 />
-              ) : (
-                <p className="text-sm text-black">
-                  {accountData.email || "Not available"}
-                </p>
-              )}
-            </div>
+                <div>
+                  <h3 className="text-sm font-medium text-black mb-1">
+                    Email Alerts
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Receive email notifications when your monitors go down or
+                    recover
+                  </p>
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                Phone Number
-              </label>
-              {isEditingAccount ? (
-                <input
-                  type="tel"
-                  value={accountData.phone}
-                  onChange={(e) =>
-                    setAccountData({ ...accountData, phone: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
-                  placeholder="+1 (555) 123-4567"
+              <div className="flex items-start gap-3">
+                <Switch
+                  checked={smsAlerts}
+                  onChange={setSmsAlerts}
+                  disabled={!isEditingAlerts}
+                  size="small"
+                  style={{
+                    backgroundColor: smsAlerts ? "#000000" : undefined,
+                  }}
                 />
-              ) : (
-                <p className="text-sm text-black">
-                  {accountData.phone || "Not set"}
-                </p>
-              )}
+                <div>
+                  <h3 className="text-sm font-medium text-black mb-1">
+                    SMS Alerts
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    Receive text messages when your monitors go down or recover
+                  </p>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                User ID
-              </label>
-              <p className="text-sm text-black font-mono">
-                {user?.id || "Not available"}
+          {/* Billing Section */}
+          <div className="border border-gray-200 rounded-lg p-6">
+            <h2 className="text-lg font-medium text-black mb-4">Billing</h2>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 flex flex-col items-center">
+              <div className="mb-3">
+                <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                  Beta
+                </span>
+              </div>
+
+              <p className="text-sm text-gray-500 w-96 text-center">
+                MCPmon is currently free to use while in beta. Enjoy unlimited
+                monitoring with no charge.
               </p>
             </div>
           </div>
-        </div>
 
-        {/* Alerts Section */}
-        <div className="border border-gray-200 rounded-lg p-6">
-          {alertsError && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
-              {alertsError}
+          {/* Delete Account Section */}
+          <div className="border border-red-200 rounded-lg p-6 bg-red-50">
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle size={20} className="text-red-600" />
+              <h2 className="text-lg font-medium text-red-900">Danger Zone</h2>
             </div>
-          )}
-          {alertsSuccess && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
-              {alertsSuccess}
-            </div>
-          )}
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-medium text-black">Alerts</h2>
-            {!isEditingAlerts ? (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium text-red-900 mb-1">
+                  Delete Account
+                </h3>
+                <p className="text-sm text-red-700 mb-4">
+                  Once you delete your account, there is no going back. All your
+                  monitors and data will be permanently deleted.
+                </p>
+              </div>
               <button
-                onClick={() => setIsEditingAlerts(true)}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                onClick={handleDeleteAccountClick}
+                className="px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 transition-colors rounded-md font-medium"
               >
-                <Edit2 size={14} />
-                Edit
+                Delete Account
               </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCancelAlerts}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
-                >
-                  <X size={14} />
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveAlerts}
-                  disabled={isUpdatingAlerts}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Check size={14} />
-                  {isUpdatingAlerts ? "Saving..." : "Save"}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-start gap-3">
-              <Switch
-                checked={emailAlerts}
-                onChange={setEmailAlerts}
-                disabled={!isEditingAlerts}
-                size="small"
-                style={{
-                  backgroundColor: emailAlerts ? '#000000' : undefined,
-                }}
-              />
-              <div>
-                <h3 className="text-sm font-medium text-black mb-1">
-                  Email Alerts
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Receive email notifications when your monitors go down or
-                  recover
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <Switch
-                checked={smsAlerts}
-                onChange={setSmsAlerts}
-                disabled={!isEditingAlerts}
-                size="small"
-                style={{
-                  backgroundColor: smsAlerts ? '#000000' : undefined,
-                }}
-              />
-              <div>
-                <h3 className="text-sm font-medium text-black mb-1">
-                  SMS Alerts
-                </h3>
-                <p className="text-sm text-gray-500">
-                  Get instant text messages for critical downtime events
-                </p>
-              </div>
             </div>
           </div>
         </div>
-
-        {/* Billing Section */}
-        <div className="border border-gray-200 rounded-lg p-6">
-          <h2 className="text-lg font-medium text-black mb-4">Billing</h2>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-            <div className="mb-3">
-              <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                Free Plan
-              </span>
+      ),
+    },
+    {
+      key: "integrations",
+      label: "Integrations",
+      children: (
+        <div className="max-w-2xl">
+          <div className="border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                <Zap size={20} className="text-black" />
+              </div>
+              <h2 className="text-lg font-medium text-black">Integrations</h2>
             </div>
-            <h3 className="text-base font-medium text-black mb-2">
-              You're on the free plan
-            </h3>
-            <p className="text-sm text-gray-500 mb-4">
-              MCPmon is currently free to use. Enjoy unlimited monitoring with
-              no charge.
+            <p className="text-sm text-gray-600 mb-6">
+              Connect MCPmon with your favorite apps
             </p>
+
+            <div className="space-y-4">
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <SiSlack size={16} className="text-gray-700" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-black mb-2">
+                      Slack
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Receive monitor alerts directly in your Slack channels.
+                    </p>
+                    <button
+                      disabled
+                      className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                    >
+                      Coming Soon
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <SiDiscord size={16} className="text-gray-700" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-black mb-2">
+                      Discord
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Get notifications in your Discord server when monitors
+                      change status.
+                    </p>
+                    <button
+                      disabled
+                      className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                    >
+                      Coming Soon
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Send size={16} className="text-gray-700" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-black mb-2">
+                      Webhook
+                    </h3>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Send custom webhooks to any endpoint when events occur.
+                    </p>
+                    <button
+                      disabled
+                      className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                    >
+                      Coming Soon
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      ),
+    },
+    {
+      key: "security",
+      label: "Security",
+      children: (
+        <div className="max-w-2xl">
+          <div className="border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
+                <Lock size={20} className="text-black" />
+              </div>
+              <h2 className="text-lg font-medium text-black">Security</h2>
+            </div>
+            <p className="text-sm text-gray-600 mb-6">
+              Manage your account security and authentication settings.
+            </p>
 
-        {/* Preferences Section */}
-        <div className="border border-gray-200 rounded-lg p-6">
-          <h2 className="text-lg font-medium text-black mb-4">Preferences</h2>
-          <p className="text-sm text-gray-500">More settings coming soon...</p>
+            <div className="space-y-4">
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h3 className="text-sm font-medium text-black mb-2">
+                  Change Password
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Update your password to keep your account secure.
+                </p>
+                <button
+                  disabled
+                  className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h3 className="text-sm font-medium text-black mb-2">
+                  Two-Factor Authentication
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Add an extra layer of security to your account with 2FA.
+                </p>
+                <button
+                  disabled
+                  className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h3 className="text-sm font-medium text-black mb-2">
+                  API Keys
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Generate and manage API keys for programmatic access.
+                </p>
+                <button
+                  disabled
+                  className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
+              </div>
+
+              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                <h3 className="text-sm font-medium text-black mb-2">
+                  Active Sessions
+                </h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  View and manage your active login sessions.
+                </p>
+                <button
+                  disabled
+                  className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="px-4 md:px-20 py-20">
+      <h1 className="text-2xl font-normal text-black mb-8">Settings</h1>
+      <Tabs
+        defaultActiveKey="general"
+        items={tabItems}
+        className="settings-tabs"
+      />
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={20} className="text-red-600" />
+            <span>Delete Account</span>
+          </div>
+        }
+        open={isDeleteModalOpen}
+        onOk={handleDeleteAccountConfirm}
+        onCancel={handleDeleteModalCancel}
+        okText="Delete Account"
+        cancelText="Cancel"
+        okButtonProps={{
+          danger: true,
+          loading: isDeletingAccount,
+          disabled: userInput !== confirmationString,
+        }}
+      >
+        <div className="space-y-4 py-4">
+          <p className="text-sm text-gray-700">
+            This action <strong>cannot be undone</strong>. This will permanently
+            delete your account and remove all your monitors and data.
+          </p>
+
+          {deleteError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+              {deleteError}
+            </div>
+          )}
+
+          <div>
+            <p className="text-sm text-gray-700 mb-2">
+              Please type{" "}
+              <strong className="font-mono bg-gray-100 px-2 py-0.5 rounded">
+                {confirmationString}
+              </strong>{" "}
+              to confirm:
+            </p>
+            <input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+              placeholder="Type the confirmation text"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

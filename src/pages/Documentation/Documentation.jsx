@@ -1,20 +1,25 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Monitor,
   Bell,
   Activity,
-  Settings,
   Lock,
-  Code,
   Zap,
   CheckCircle,
   ExternalLink,
+  Home,
+  Menu,
+  X,
 } from "react-feather";
 import { TbDeviceHeartMonitor } from "react-icons/tb";
+import { selectIsAuthenticated } from "../../features/authSlice";
 
 function Documentation() {
   const [activeSection, setActiveSection] = useState("introduction");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const sections = [
     { id: "introduction", label: "Introduction", icon: Activity },
@@ -22,17 +27,41 @@ function Documentation() {
     { id: "monitors", label: "Monitors", icon: Monitor },
     { id: "authentication", label: "Authentication", icon: Lock },
     { id: "alerts", label: "Alerts & Notifications", icon: Bell },
-    { id: "api", label: "API Reference", icon: Code },
   ];
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-50 flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-0">
+          <TbDeviceHeartMonitor size={20} className="text-black" />
+          <span className="text-lg font-medium text-black">MCPmon</span>
+        </Link>
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 text-black hover:bg-gray-50 rounded-md"
+        >
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40 mt-14"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
+      <div className="max-w-6xl mx-auto px-4 md:px-6 py-16 md:py-12">
         <div className="flex gap-12">
           {/* Sidebar Navigation */}
-          <aside className="w-64 flex-shrink-0 sticky top-12 h-fit">
-            {/* Logo */}
-            <Link to="/" className="flex items-center space-x-0 mb-8">
+          <aside className={`
+            w-64 flex-shrink-0 sticky top-12 h-fit
+            ${mobileMenuOpen ? 'fixed top-14 left-0 bg-white z-50 p-6 border-r border-gray-200 h-screen overflow-y-auto' : 'hidden md:block'}
+          `}>
+            {/* Logo - Desktop Only */}
+            <Link to="/" className="hidden md:flex items-center space-x-0 mb-8">
               <TbDeviceHeartMonitor size={20} className="text-black" />
               <span className="text-lg font-medium text-black">MCPmon</span>
             </Link>
@@ -46,7 +75,10 @@ function Documentation() {
                 return (
                   <button
                     key={section.id}
-                    onClick={() => setActiveSection(section.id)}
+                    onClick={() => {
+                      setActiveSection(section.id);
+                      setMobileMenuOpen(false);
+                    }}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
                       activeSection === section.id
                         ? "bg-black text-white"
@@ -58,11 +90,23 @@ function Documentation() {
                   </button>
                 );
               })}
+              {isAuthenticated && (
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <Link
+                    to="/home"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-gray-700 hover:bg-gray-50"
+                  >
+                    <Home size={16} />
+                    Dashboard
+                  </Link>
+                </div>
+              )}
             </nav>
           </aside>
 
           {/* Main Content */}
-          <main className="flex-1 max-w-3xl">
+          <main className="flex-1 max-w-3xl min-w-0">
             {/* Introduction */}
             {activeSection === "introduction" && (
               <div className="space-y-8">
@@ -319,12 +363,15 @@ function Documentation() {
                   <h3 className="text-xl font-semibold text-black mb-4">
                     Monitor Status
                   </h3>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Each monitor displays a colored status dot. Hover over the dot to see the status text.
+                  </p>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3 border border-gray-200 rounded-lg p-4">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mt-1 flex-shrink-0"></div>
+                      <div className="w-3 h-3 bg-green-200 rounded-full mt-1 flex-shrink-0"></div>
                       <div>
                         <h4 className="font-medium text-black mb-1">
-                          UP (Online)
+                          Online
                         </h4>
                         <p className="text-sm text-gray-600">
                           Server is responding normally and passing health
@@ -333,10 +380,10 @@ function Documentation() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3 border border-gray-200 rounded-lg p-4">
-                      <div className="w-3 h-3 bg-red-500 rounded-full mt-1 flex-shrink-0"></div>
+                      <div className="w-3 h-3 bg-red-200 rounded-full mt-1 flex-shrink-0"></div>
                       <div>
                         <h4 className="font-medium text-black mb-1">
-                          DOWN (Offline)
+                          Offline
                         </h4>
                         <p className="text-sm text-gray-600">
                           Server is unreachable or failing health checks
@@ -344,9 +391,9 @@ function Documentation() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3 border border-gray-200 rounded-lg p-4">
-                      <div className="w-3 h-3 bg-gray-400 rounded-full mt-1 flex-shrink-0"></div>
+                      <div className="w-3 h-3 bg-blue-200 rounded-full mt-1 flex-shrink-0"></div>
                       <div>
-                        <h4 className="font-medium text-black mb-1">PAUSED</h4>
+                        <h4 className="font-medium text-black mb-1">Paused</h4>
                         <p className="text-sm text-gray-600">
                           Monitoring is temporarily disabled for this server
                         </p>
@@ -401,6 +448,41 @@ function Documentation() {
                       </span>
                     </li>
                   </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-black mb-4">
+                    Monitor Actions
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Click the menu button (three dots) on any monitor card to access additional options:
+                  </p>
+                  <div className="space-y-4">
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-black mb-2">Edit Monitor</h4>
+                      <p className="text-sm text-gray-600">
+                        Update the monitor name, URL, or authentication settings
+                      </p>
+                    </div>
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-black mb-2">View Status Page</h4>
+                      <p className="text-sm text-gray-600">
+                        Open the public status page for this monitor that you can share with others
+                      </p>
+                    </div>
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-black mb-2">Pause/Resume</h4>
+                      <p className="text-sm text-gray-600">
+                        Temporarily pause monitoring without deleting the monitor. Resume anytime.
+                      </p>
+                    </div>
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-black mb-2">Delete Monitor</h4>
+                      <p className="text-sm text-gray-600">
+                        Permanently remove the monitor and all its historical data. This action cannot be undone.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -620,68 +702,6 @@ function Documentation() {
               </div>
             )}
 
-            {/* API Reference */}
-            {activeSection === "api" && (
-              <div className="space-y-8">
-                <div>
-                  <h1 className="text-4xl font-bold text-black mb-4">
-                    API Reference
-                  </h1>
-                  <p className="text-lg text-gray-600 leading-relaxed">
-                    Programmatic access to your monitors and data.
-                  </p>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-800">
-                    <strong>Coming Soon:</strong> The MCPmon API is currently in
-                    development. Full API documentation will be available when
-                    the API launches.
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-semibold text-black mb-4">
-                    Planned Endpoints
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <code className="text-sm font-medium text-black">
-                        GET /api/monitors
-                      </code>
-                      <p className="text-sm text-gray-600 mt-2">
-                        List all monitors for your account
-                      </p>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <code className="text-sm font-medium text-black">
-                        GET /api/monitors/:id
-                      </code>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Get details for a specific monitor
-                      </p>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <code className="text-sm font-medium text-black">
-                        POST /api/monitors
-                      </code>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Create a new monitor
-                      </p>
-                    </div>
-                    <div className="border border-gray-200 rounded-lg p-4">
-                      <code className="text-sm font-medium text-black">
-                        GET /api/monitors/:id/stats
-                      </code>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Get uptime statistics and historical data
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Footer Help */}
             <div className="mt-16 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold text-black mb-4">
@@ -692,10 +712,10 @@ function Documentation() {
               </p>
               <div className="flex gap-4">
                 <Link
-                  to="/support"
+                  to="/contact"
                   className="px-4 py-2 text-sm border border-gray-300 text-black hover:bg-gray-50 transition-colors rounded-md"
                 >
-                  Contact Support
+                  Contact Us
                 </Link>
                 <a
                   href="https://modelcontextprotocol.io/docs/getting-started/intro"
