@@ -103,8 +103,10 @@ function Login() {
         )}
 
         <div>
-          <a
-            href={`${import.meta.env.VITE_API_URL || "http://localhost:3000/api"}/auth/github`}
+          <button
+            onClick={() => {
+              window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/auth/github?t=${Date.now()}`;
+            }}
             className="w-full border border-gray-300 px-6 py-2 text-sm text-black hover:bg-black hover:text-white transition-colors rounded-md flex items-center justify-center space-x-2"
           >
             <svg
@@ -120,7 +122,7 @@ function Login() {
               />
             </svg>
             <span>Continue with GitHub</span>
-          </a>
+          </button>
         </div>
 
         <div className="mt-6 flex items-center">
@@ -147,9 +149,17 @@ function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm text-black mb-2">
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label htmlFor="password" className="block text-sm text-black">
+                Password
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-sm text-black hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               type="password"
               id="password"

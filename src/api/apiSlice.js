@@ -78,6 +78,28 @@ export const apiSlice = createApi({
         method: 'POST',
       }),
     }),
+    // Password reset/change endpoints
+    forgotPassword: builder.mutation({
+      query: (email) => ({
+        url: 'auth/forgot-password',
+        method: 'POST',
+        body: { email },
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: ({ token, password }) => ({
+        url: `auth/reset-password/${token}`,
+        method: 'POST',
+        body: { password },
+      }),
+    }),
+    changePassword: builder.mutation({
+      query: (passwordData) => ({
+        url: 'auth/change-password',
+        method: 'PUT',
+        body: passwordData,
+      }),
+    }),
     // Feedback endpoint
     submitFeedback: builder.mutation({
       query: (feedbackData) => ({
@@ -204,6 +226,9 @@ export const {
   useSendPhoneVerificationMutation,
   useVerifyPhoneMutation,
   useResendPhoneVerificationMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useChangePasswordMutation,
   useSubmitFeedbackMutation,
   useSubmitContactMutation,
   useSubscribeMutation,

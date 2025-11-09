@@ -62,7 +62,7 @@ function Contact() {
             className="flex items-center justify-center gap-2 w-full px-4 py-3 border border-gray-300 text-black hover:bg-black hover:text-white transition-colors rounded-md text-sm font-medium"
           >
             <SiSlack size={18} />
-            Chat with us on Slack
+            Join us on Slack
           </a>
         </div>
 
@@ -71,9 +71,7 @@ function Contact() {
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="px-2 bg-white text-gray-500">
-              Or send a message
-            </span>
+            <span className="px-2 bg-white text-gray-500">OR</span>
           </div>
         </div>
 

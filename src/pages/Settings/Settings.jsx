@@ -16,6 +16,7 @@ import {
   useSendPhoneVerificationMutation,
   useVerifyPhoneMutation,
   useResendPhoneVerificationMutation,
+  useChangePasswordMutation,
 } from "../../api/apiSlice";
 
 function Settings() {
@@ -33,18 +34,23 @@ function Settings() {
   const [verifyPhone, { isLoading: isVerifying }] = useVerifyPhoneMutation();
   const [resendPhoneVerification, { isLoading: isResending }] =
     useResendPhoneVerificationMutation();
+  const [changePassword, { isLoading: isChangingPassword }] =
+    useChangePasswordMutation();
 
   // Edit mode states
   const [isEditingAccount, setIsEditingAccount] = useState(false);
   const [isEditingAlerts, setIsEditingAlerts] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
 
   // Error states
   const [accountError, setAccountError] = useState("");
   const [alertsError, setAlertsError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   // Success states
   const [accountSuccess, setAccountSuccess] = useState("");
   const [alertsSuccess, setAlertsSuccess] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
 
   // Account form data
   const [accountData, setAccountData] = useState({
@@ -58,6 +64,13 @@ function Settings() {
     user?.emailAlertsEnabled ?? true,
   );
   const [smsAlerts, setSmsAlerts] = useState(user?.smsAlertsEnabled ?? false);
+
+  // Password form data
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   // Delete account modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -225,6 +238,56 @@ function Settings() {
     setAlertsError("");
     setAlertsSuccess("");
     setIsEditingAlerts(false);
+  };
+
+  const handleSavePassword = async () => {
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    // Validate passwords match
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError("New passwords do not match");
+      return;
+    }
+
+    // Validate password length
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError("Password must be at least 6 characters long");
+      return;
+    }
+
+    try {
+      await changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword,
+      }).unwrap();
+
+      setPasswordSuccess("Password changed successfully");
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsEditingPassword(false);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setPasswordSuccess(""), 3000);
+    } catch (err) {
+      setPasswordError(
+        err?.data?.message || "Failed to change password. Please try again.",
+      );
+    }
+  };
+
+  const handleCancelPassword = () => {
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+    setPasswordError("");
+    setPasswordSuccess("");
+    setIsEditingPassword(false);
   };
 
   // Generate random 6-letter string
@@ -653,20 +716,124 @@ function Settings() {
             </p>
 
             <div className="space-y-4">
-              <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                <h3 className="text-sm font-medium text-black mb-2">
-                  Change Password
-                </h3>
-                <p className="text-xs text-gray-500 mb-3">
-                  Update your password to keep your account secure.
-                </p>
-                <button
-                  disabled
-                  className="px-3 py-1.5 text-xs border border-gray-300 text-gray-500 bg-white rounded-md cursor-not-allowed"
-                >
-                  Coming Soon
-                </button>
-              </div>
+              {user?.authProvider === "github" ? (
+                <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <h3 className="text-sm font-medium text-black mb-2">
+                    Change Password
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    You signed in with GitHub. Password management is handled through your GitHub account.
+                  </p>
+                </div>
+              ) : (
+                <div className="border border-gray-200 rounded-lg p-4 bg-white">
+                  {passwordError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+                      {passwordError}
+                    </div>
+                  )}
+                  {passwordSuccess && (
+                    <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
+                      {passwordSuccess}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-black mb-1">
+                        Change Password
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        Update your password to keep your account secure.
+                      </p>
+                    </div>
+                    {!isEditingPassword ? (
+                      <button
+                        onClick={() => setIsEditingPassword(true)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <Edit2 size={14} />
+                        Edit
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={handleCancelPassword}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                        >
+                          <X size={14} />
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSavePassword}
+                          disabled={isChangingPassword}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Check size={14} />
+                          {isChangingPassword ? "Saving..." : "Save"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {isEditingPassword && (
+                    <div className="space-y-4 mt-4">
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">
+                          Current Password
+                        </label>
+                        <input
+                          type="password"
+                          value={passwordData.currentPassword}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              currentPassword: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                          placeholder="Enter current password"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">
+                          New Password
+                        </label>
+                        <input
+                          type="password"
+                          value={passwordData.newPassword}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              newPassword: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                          placeholder="Enter new password"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-1">
+                          Confirm New Password
+                        </label>
+                        <input
+                          type="password"
+                          value={passwordData.confirmPassword}
+                          onChange={(e) =>
+                            setPasswordData({
+                              ...passwordData,
+                              confirmPassword: e.target.value,
+                            })
+                          }
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                          placeholder="Confirm new password"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                 <h3 className="text-sm font-medium text-black mb-2">
