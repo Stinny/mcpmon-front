@@ -4,131 +4,260 @@
 
 /* Ant Design Select component styling to match app inputs */
 .ant-select .ant-select-selector {
-  border: 1px solid #d1d5db !important;
-  border-radius: 0.375rem !important;
-  font-size: 0.875rem !important;
-  line-height: 1.25rem !important;
-  padding: 0.375rem 0.75rem !important;
-  height: auto !important;
-  box-shadow: none !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    padding: 0.375rem 0.75rem !important;
+    height: auto !important;
+    box-shadow: none !important;
 }
 
 .ant-select-focused .ant-select-selector,
 .ant-select:hover .ant-select-selector {
-  border-color: #000000 !important;
-  box-shadow: 0 0 0 1px #000000 !important;
-  outline: none !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 1px #000000 !important;
+    outline: none !important;
 }
 
 .ant-select .ant-select-selection-item {
-  line-height: 1.5rem !important;
-  padding: 0 !important;
+    line-height: 1.5rem !important;
+    padding: 0 !important;
 }
 
 .ant-select .ant-select-selection-placeholder {
-  line-height: 1.5rem !important;
-  padding: 0 !important;
+    line-height: 1.5rem !important;
+    padding: 0 !important;
 }
 
 .ant-select-dropdown {
-  border-radius: 0.375rem !important;
-  border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    border: 1px solid #d1d5db !important;
 }
 
 .ant-select-item-option-selected {
-  background-color: #f9fafb !important;
+    background-color: #f9fafb !important;
 }
 
 .ant-select-item-option-active {
-  background-color: #f3f4f6 !important;
+    background-color: #f3f4f6 !important;
 }
 
 /* Ant Design Tabs styling to match app design */
-.settings-tabs .ant-tabs-nav {
-  margin-bottom: 2rem !important;
+.settings-tabs .ant-tabs-nav,
+.status-tabs .ant-tabs-nav {
+    margin-bottom: 2rem !important;
 }
 
-.settings-tabs .ant-tabs-tab {
-  color: #6b7280 !important;
-  font-size: 0.875rem !important;
-  padding: 0.5rem 1rem !important;
+.settings-tabs .ant-tabs-tab,
+.status-tabs .ant-tabs-tab {
+    color: #6b7280 !important;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 1rem !important;
 }
 
-.settings-tabs .ant-tabs-tab:hover {
-  color: #000000 !important;
+.settings-tabs .ant-tabs-tab:hover,
+.status-tabs .ant-tabs-tab:hover {
+    color: #000000 !important;
 }
 
-.settings-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #000000 !important;
-  font-weight: 500 !important;
+.settings-tabs .ant-tabs-tab-active .ant-tabs-tab-btn,
+.status-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #000000 !important;
+    font-weight: 500 !important;
 }
 
-.settings-tabs .ant-tabs-ink-bar {
-  background: #000000 !important;
-  height: 2px !important;
+.settings-tabs .ant-tabs-ink-bar,
+.status-tabs .ant-tabs-ink-bar {
+    background: #000000 !important;
+    height: 2px !important;
 }
 
-.settings-tabs .ant-tabs-nav::before {
-  border-bottom: 1px solid #e5e7eb !important;
+.settings-tabs .ant-tabs-nav::before,
+.status-tabs .ant-tabs-nav::before {
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Status page tabs - button-like styling */
+.status-tabs .ant-tabs-nav-list {
+    gap: 0.25rem !important;
+}
+
+.status-tabs .ant-tabs-tab {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0.375rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.status-tabs .ant-tabs-tab:hover {
+    border-color: #9ca3af !important;
+    background: #f9fafb !important;
+}
+
+.status-tabs .ant-tabs-tab-active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+}
+
+.status-tabs .ant-tabs-tab-active:hover {
+    background: #000000 !important;
+    border-color: #000000 !important;
+}
+
+.status-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #ffffff !important;
+}
+
+.status-tabs .ant-tabs-ink-bar {
+    display: none !important;
+}
+
+.status-tabs .ant-tabs-nav::before {
+    border-bottom: none !important;
+}
+
+/* Ant Design Pagination styling to match app design */
+.ant-pagination .ant-pagination-item {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    background: #ffffff !important;
+    margin: 0 0.25rem !important;
+}
+
+.ant-pagination-simple .ant-pagination-simple-pager input {
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    color: #000000 !important;
+}
+
+.ant-pagination-simple .ant-pagination-simple-pager input:focus {
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 1px #000000 !important;
+    outline: none !important;
+}
+
+.ant-pagination .ant-pagination-item a {
+    color: #000000 !important;
+}
+
+.ant-pagination .ant-pagination-item:hover {
+    border-color: #000000 !important;
+}
+
+.ant-pagination .ant-pagination-item:hover a {
+    color: #000000 !important;
+}
+
+.ant-pagination .ant-pagination-item-active {
+    background: #000000 !important;
+    border-color: #000000 !important;
+}
+
+.ant-pagination .ant-pagination-item-active a {
+    color: #ffffff !important;
+}
+
+.ant-pagination .ant-pagination-item-active:hover a {
+    color: #ffffff !important;
+}
+
+.ant-pagination .ant-pagination-prev,
+.ant-pagination .ant-pagination-next {
+    margin: 0 0.25rem !important;
+}
+
+.ant-pagination .ant-pagination-prev button,
+.ant-pagination .ant-pagination-next button {
+    color: #000000 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 0.375rem !important;
+    background: #ffffff !important;
+}
+
+.ant-pagination .ant-pagination-prev:hover button,
+.ant-pagination .ant-pagination-next:hover button {
+    border-color: #000000 !important;
+    color: #000000 !important;
+}
+
+.ant-pagination .ant-pagination-disabled button {
+    color: #9ca3af !important;
+    border-color: #e5e7eb !important;
+    background: #f9fafb !important;
+    cursor: not-allowed !important;
 }
 
 /* Ant Design Modal styling to match app design */
 .ant-modal .ant-modal-content {
-  border-radius: 0.5rem !important;
-  padding: 0 !important;
+    border-radius: 0.5rem !important;
+    padding: 0 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
 .ant-modal .ant-modal-header {
-  padding: 1.5rem !important;
-  border-bottom: 1px solid #e5e7eb !important;
-  border-radius: 0.5rem 0.5rem 0 0 !important;
+    padding: 1.5rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    background: #ffffff !important;
 }
 
 .ant-modal .ant-modal-body {
-  padding: 0 1.5rem !important;
+    padding: 0 1.5rem !important;
 }
 
 .ant-modal .ant-modal-footer {
-  padding: 1rem 1.5rem !important;
-  border-top: 1px solid #e5e7eb !important;
-  margin-top: 0 !important;
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid #e5e7eb !important;
+    margin-top: 0 !important;
+}
+
+.ant-modal .ant-modal-close {
+    color: #6b7280 !important;
+}
+
+.ant-modal .ant-modal-close:hover {
+    color: #000000 !important;
+    background-color: #f3f4f6 !important;
 }
 
 .ant-modal .ant-btn-default {
-  border: 1px solid #d1d5db !important;
-  color: #000000 !important;
-  background: #ffffff !important;
-  font-size: 0.875rem !important;
-  padding: 0.375rem 1rem !important;
-  height: auto !important;
-  border-radius: 0.375rem !important;
+    border: 1px solid #d1d5db !important;
+    color: #000000 !important;
+    background: #ffffff !important;
+    font-size: 0.875rem !important;
+    padding: 0.375rem 1rem !important;
+    height: auto !important;
+    border-radius: 0.375rem !important;
 }
 
 .ant-modal .ant-btn-default:hover {
-  background: #f9fafb !important;
-  border-color: #000000 !important;
-  color: #000000 !important;
+    background: #f9fafb !important;
+    border-color: #000000 !important;
+    color: #000000 !important;
 }
 
 .ant-modal .ant-btn-dangerous {
-  background: #dc2626 !important;
-  border-color: #dc2626 !important;
-  color: #ffffff !important;
-  font-size: 0.875rem !important;
-  padding: 0.375rem 1rem !important;
-  height: auto !important;
-  border-radius: 0.375rem !important;
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    color: #ffffff !important;
+    font-size: 0.875rem !important;
+    padding: 0.375rem 1rem !important;
+    height: auto !important;
+    border-radius: 0.375rem !important;
 }
 
 .ant-modal .ant-btn-dangerous:hover {
-  background: #b91c1c !important;
-  border-color: #b91c1c !important;
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
 }
 
 .ant-modal .ant-btn-dangerous:disabled {
-  background: #fca5a5 !important;
-  border-color: #fca5a5 !important;
-  color: #ffffff !important;
-  opacity: 0.6 !important;
-  cursor: not-allowed !important;
+    background: #fca5a5 !important;
+    border-color: #fca5a5 !important;
+    color: #ffffff !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
 }

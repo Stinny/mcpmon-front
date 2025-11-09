@@ -22,11 +22,16 @@ function Contact() {
         message,
       }).unwrap();
 
-      setSuccess(response.message || "Thank you for your message! We'll get back to you soon.");
+      setSuccess(
+        response.message ||
+          "Thank you for your message! We'll get back to you soon.",
+      );
       setEmail("");
       setMessage("");
     } catch (err) {
-      setError(err?.data?.message || "Failed to send message. Please try again.");
+      setError(
+        err?.data?.message || "Failed to send message. Please try again.",
+      );
     }
   };
 
@@ -41,11 +46,10 @@ function Contact() {
           <span className="text-lg font-medium text-black">MCPmon</span>
         </Link>
 
-        <h1 className="text-lg font-normal text-black mb-2">
-          Get in touch
-        </h1>
+        <h1 className="text-lg font-normal text-black mb-2">Get in touch</h1>
         <p className="text-sm text-gray-600 mb-8">
-          Have questions, feedback, or feature requests? We'd love to hear from you.
+          Have questions, feedback, or feature requests? We'd love to hear from
+          you.
         </p>
 
         {error && (
@@ -72,7 +76,7 @@ function Contact() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent"
               placeholder="you@example.com"
             />
           </div>
@@ -89,7 +93,7 @@ function Contact() {
               required
               maxLength={300}
               rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent resize-none"
               placeholder="Your message..."
             />
             <div className="mt-1 text-xs text-gray-500 text-right">

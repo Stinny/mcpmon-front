@@ -58,6 +58,26 @@ export const apiSlice = createApi({
         method: 'DELETE',
       }),
     }),
+    // Phone verification endpoints
+    sendPhoneVerification: builder.mutation({
+      query: () => ({
+        url: 'auth/send-phone-verification',
+        method: 'POST',
+      }),
+    }),
+    verifyPhone: builder.mutation({
+      query: (code) => ({
+        url: 'auth/verify-phone',
+        method: 'POST',
+        body: { code },
+      }),
+    }),
+    resendPhoneVerification: builder.mutation({
+      query: () => ({
+        url: 'auth/resend-phone-verification',
+        method: 'POST',
+      }),
+    }),
     // Feedback endpoint
     submitFeedback: builder.mutation({
       query: (feedbackData) => ({
@@ -181,6 +201,9 @@ export const {
   useUpdateProfileMutation,
   useUpdateAlertPreferencesMutation,
   useDeleteAccountMutation,
+  useSendPhoneVerificationMutation,
+  useVerifyPhoneMutation,
+  useResendPhoneVerificationMutation,
   useSubmitFeedbackMutation,
   useSubmitContactMutation,
   useSubscribeMutation,

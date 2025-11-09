@@ -1,16 +1,59 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "react-feather";
+import { Switch } from "antd";
+import Select from "react-select";
 import { useCreateMonitorMutation } from "../../api/apiSlice";
 
 function AddMonitor() {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [authType, setAuthType] = useState("none");
+  const [authToken, setAuthToken] = useState("");
+  const [authHeaderName, setAuthHeaderName] = useState("X-API-Key");
+  const [toolsSyncEnabled, setToolsSyncEnabled] = useState(true);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
   const [createMonitor, { isLoading }] = useCreateMonitorMutation();
+
+  const authTypeOptions = [
+    { value: "none", label: "None" },
+    { value: "bearer", label: "Bearer Token" },
+    { value: "apikey", label: "API Key" },
+  ];
+
+  const customSelectStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? "#000000" : "#d1d5db",
+      boxShadow: state.isFocused ? "0 0 0 1px #000000" : "none",
+      "&:hover": {
+        borderColor: state.isFocused ? "#000000" : "#d1d5db",
+      },
+      fontSize: "0.875rem",
+      minHeight: "38px",
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected
+        ? "#000000"
+        : state.isFocused
+          ? "#f3f4f6"
+          : "white",
+      color: state.isSelected ? "white" : "#000000",
+      fontSize: "0.875rem",
+      "&:active": {
+        backgroundColor: "#000000",
+      },
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      color: "#000000",
+      fontSize: "0.875rem",
+    }),
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +64,10 @@ function AddMonitor() {
         name,
         url,
         description,
+        authType,
+        authToken: authType !== "none" ? authToken : undefined,
+        authHeaderName: authType === "apikey" ? authHeaderName : undefined,
+        toolsSyncEnabled,
       };
       await createMonitor(monitorData).unwrap();
       navigate("/monitors");
@@ -105,6 +152,96 @@ function AddMonitor() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
               placeholder="https://mcp.example.com/mcp"
             />
+          </div>
+
+          <div className="border-t border-gray-200 pt-6">
+            <h2 className="text-lg font-normal text-black mb-4">
+              Authentication
+            </h2>
+
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="authType"
+                  className="block text-sm text-black mb-2"
+                >
+                  Authentication Type
+                </label>
+                <Select
+                  inputId="authType"
+                  name="authType"
+                  value={authTypeOptions.find(
+                    (option) => option.value === authType,
+                  )}
+                  onChange={(option) => setAuthType(option.value)}
+                  options={authTypeOptions}
+                  styles={customSelectStyles}
+                  isSearchable={false}
+                />
+              </div>
+
+              {authType !== "none" && (
+                <div>
+                  <label
+                    htmlFor="authToken"
+                    className="block text-sm text-black mb-2"
+                  >
+                    {authType === "bearer" ? "Bearer Token" : "API Key"}
+                  </label>
+                  <input
+                    type="password"
+                    id="authToken"
+                    name="authToken"
+                    value={authToken}
+                    onChange={(e) => setAuthToken(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder={
+                      authType === "bearer"
+                        ? "Enter bearer token"
+                        : "Enter API key"
+                    }
+                  />
+                </div>
+              )}
+
+              {authType === "apikey" && (
+                <div>
+                  <label
+                    htmlFor="authHeaderName"
+                    className="block text-sm text-black mb-2"
+                  >
+                    API Key Header Name
+                  </label>
+                  <input
+                    type="text"
+                    id="authHeaderName"
+                    name="authHeaderName"
+                    value={authHeaderName}
+                    onChange={(e) => setAuthHeaderName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-black"
+                    placeholder="X-API-Key"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="toolsSyncEnabled"
+                  checked={toolsSyncEnabled}
+                  onChange={(checked) => setToolsSyncEnabled(checked)}
+                  size="small"
+                  style={{
+                    backgroundColor: toolsSyncEnabled ? "#000000" : undefined,
+                  }}
+                />
+                <label
+                  htmlFor="toolsSyncEnabled"
+                  className="text-sm text-black"
+                >
+                  Enable tool discovery
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-3">

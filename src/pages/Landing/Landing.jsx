@@ -7,6 +7,7 @@ import {
   Globe,
   ChevronLeft,
   ChevronRight,
+  Tool,
 } from "react-feather";
 import { Tooltip } from "antd";
 import { useSubscribeMutation } from "../../api/apiSlice";
@@ -39,7 +40,7 @@ function Landing() {
     {
       id: 1,
       name: "Production API",
-      url: "https://api.example.com",
+      url: "https://api.example.com/mcp",
       status: "online",
       uptime: 99.98,
       checks: 1247,
@@ -48,7 +49,7 @@ function Landing() {
     {
       id: 2,
       name: "Staging Server",
-      url: "https://staging.example.com",
+      url: "https://staging.example.com/mcp",
       status: "online",
       uptime: 99.85,
       checks: 892,
@@ -57,7 +58,7 @@ function Landing() {
     {
       id: 3,
       name: "MCP Gateway",
-      url: "https://mcp.example.com",
+      url: "https://mcp.example.com/mcp",
       status: "down",
       uptime: 93.24,
       checks: 2104,
@@ -78,11 +79,31 @@ function Landing() {
     }
   };
 
+  const getStatusTooltip = (status) => {
+    switch (status) {
+      case "online":
+        return "This MCP server is online";
+      case "down":
+        return "This MCP server is offline";
+      case "paused":
+        return "This MCP server is paused";
+      default:
+        return "This MCP server status is unknown";
+    }
+  };
+
+  const formatResponseTime = (ms) => {
+    if (ms >= 1000) {
+      return `${(ms / 1000).toFixed(2)}s`;
+    }
+    return `${ms}ms`;
+  };
+
   return (
-    <div className="min-h-screen overflow-auto flex items-center justify-center bg-white px-4 md:px-6 py-8">
+    <div className="min-h-screen overflow-auto flex items-center justify-center bg-white px-4 md:px-6">
       <div className="max-w-5xl w-full">
         {/* Hero and Features Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-12 md:mb-8 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 mb-20 items-center">
           {/* Hero Text */}
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-black mb-4 md:mb-6 leading-tight">
@@ -108,7 +129,7 @@ function Landing() {
             </div>
             {/* How it Works - Compact */}
             <div className="w-full">
-              <div className="flex items-center justify-start gap-6 text-center">
+              <div className="flex items-center justify-between text-center">
                 <div className="">
                   <div className="w-8 h-8 bg-white text-black border border-gray-200 rounded-lg flex items-center justify-center font-semibold text-sm mx-auto mb-2">
                     1
@@ -120,7 +141,7 @@ function Landing() {
                   <div className="w-8 h-8 bg-white text-black border border-gray-200 rounded-lg flex items-center justify-center font-semibold text-sm mx-auto mb-2">
                     2
                   </div>
-                  <p className="text-xs text-gray-600">Add MCP server</p>
+                  <p className="text-xs text-gray-600">Add first monitor</p>
                 </div>
                 <div className="text-gray-600">→</div>
                 <div className="">
@@ -136,7 +157,7 @@ function Landing() {
           {/* Features Grid */}
           <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+              <div className="p-3 border border-gray-200 rounded-lg hover:border-gray-300">
                 <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-2">
                   <Activity className="text-black" size={20} />
                 </div>
@@ -148,7 +169,7 @@ function Landing() {
                 </p>
               </div>
 
-              <div className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+              <div className="p-3 border border-gray-200 rounded-lg hover:border-gray-300">
                 <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-2">
                   <Bell className="text-black" size={20} />
                 </div>
@@ -160,7 +181,7 @@ function Landing() {
                 </p>
               </div>
 
-              <div className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+              <div className="p-3 border border-gray-200 rounded-lg hover:border-gray-300">
                 <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-2">
                   <BarChart2 className="text-black" size={20} />
                 </div>
@@ -172,7 +193,7 @@ function Landing() {
                 </p>
               </div>
 
-              <div className="p-3 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+              <div className="p-3 border border-gray-200 rounded-lg hover:border-gray-300">
                 <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center mb-2">
                   <Globe className="text-black" size={20} />
                 </div>
@@ -194,7 +215,7 @@ function Landing() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter email to subscribe"
                     required
-                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent"
                   />
                   <button
                     type="submit"
@@ -220,7 +241,7 @@ function Landing() {
         </div>
 
         {/* Example Monitors Section */}
-        <div className="mt-20">
+        <div className="mb-20">
           <h2 className="text-lg font-medium text-black text-center">
             See monitors at a glance
           </h2>
@@ -236,14 +257,11 @@ function Landing() {
               >
                 <div className="flex justify-between items-start mb-3">
                   <Tooltip
-                    title={
-                      monitor.status.charAt(0).toUpperCase() +
-                      monitor.status.slice(1)
-                    }
+                    title={getStatusTooltip(monitor.status)}
                     color="#000000"
                   >
                     <span
-                      className={`w-3 h-3 rounded-full cursor-pointer ${getStatusColor(monitor.status)}`}
+                      className={`w-5 h-3 rounded-full cursor-pointer ${getStatusColor(monitor.status)}`}
                     ></span>
                   </Tooltip>
                 </div>
@@ -252,7 +270,7 @@ function Landing() {
                   {monitor.name}
                 </h3>
                 <p
-                  className="text-xs text-gray-600 mb-3 truncate"
+                  className="text-xs text-black mb-3 truncate"
                   title={monitor.url}
                 >
                   {monitor.url}
@@ -274,7 +292,7 @@ function Landing() {
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Avg Response</span>
                     <span className="font-medium text-black">
-                      {monitor.avgResponse}ms
+                      {formatResponseTime(monitor.avgResponse)}
                     </span>
                   </div>
                 </div>
@@ -283,80 +301,107 @@ function Landing() {
           </div>
         </div>
 
-        {/* Browser Mockup Section */}
-        <div className="mt-20">
-          <h2 className="text-lg font-medium text-black text-center">
-            Public status pages
-          </h2>
-          <p className="text-sm text-gray-600 mb-8 text-center">
-            Give users confidence on the status of your servers
-          </p>
-          <div className="max-w-3xl mx-auto">
-            {/* Browser Frame */}
-            <div className="border border-gray-300 rounded-lg overflow-hidden shadow-lg bg-white">
+        {/* Stats View Section */}
+        <div className="">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Text Content */}
+            <div>
+              <h2 className="text-2xl font-semibold text-black mb-4">
+                Real-time Performance Metrics
+              </h2>
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                Monitor your MCP server's health at a glance. Track uptime
+                percentages, response times, and check history with an
+                easy-to-read stats dashboard.
+              </p>
+              <p className="text-gray-600 leading-relaxed">
+                Share public status pages with your users to keep them informed
+                about your server's availability and performance.
+              </p>
+            </div>
+
+            {/* Browser Mockup - Stats View */}
+            <div className="border border-gray-300 rounded-lg overflow-hidden shadow-md bg-white">
               {/* Browser Chrome */}
-              <div className="bg-gray-50 border-b border-gray-300 px-4 py-3">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              <div className="bg-gray-50 border-b border-gray-300 px-3 py-2">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
                 </div>
-                <div className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-xs text-gray-600 font-mono">
-                  mcpmon.io/m/abc123xyz
+                <div className="bg-white border border-gray-300 rounded-md px-2 py-1 text-xs text-gray-600 font-mono">
+                  mcpmon.io/m/abc123
                 </div>
               </div>
 
-              {/* Mock Status Page Content */}
-              <div className="bg-white p-8">
-                <div className="max-w-xl mx-auto">
-                  {/* Status Badge */}
-                  <div className="flex justify-center mb-6">
-                    <Tooltip title="Online" color="#000000">
-                      <span className="w-4 h-4 rounded-full cursor-pointer bg-green-200"></span>
-                    </Tooltip>
+              {/* Mock Status Page - Stats View */}
+              <div className="bg-white p-4">
+                {/* Main Info Box */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-white mb-3">
+                  {/* Status Dot & Info */}
+                  <div className="mb-3">
+                    <span className="w-4 h-2.5 rounded-full inline-block bg-green-200 mb-2"></span>
+                    <h1 className="text-lg font-medium text-black mb-1">
+                      Production API Server
+                    </h1>
+                    <p className="text-xs text-gray-600 mb-1">
+                      MCP server for production services
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      https://api.example.com/mcp
+                    </p>
                   </div>
 
-                  {/* Monitor Name */}
-                  <h1 className="text-2xl font-medium text-black text-center mb-2">
-                    Production API
-                  </h1>
-                  <p className="text-sm text-gray-600 mb-1 text-center">
-                    MCP server to access the production API of our services
-                  </p>
-
-                  {/* URL */}
-                  <div className="text-center mb-6">
-                    <span className="text-sm text-blue-600 break-all">
-                      https://api.example.com
-                    </span>
+                  {/* Tabs */}
+                  <div className="flex gap-1 mb-3">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-black text-white rounded text-xs font-medium">
+                      <BarChart2 size={12} />
+                      <span>Stats</span>
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-1 border border-gray-300 bg-white text-gray-600 rounded text-xs">
+                      <Tool size={12} />
+                      <span>Tools</span>
+                    </div>
                   </div>
 
-                  {/* Stats */}
-                  <div className="space-y-3 border-t border-gray-200 pt-6">
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Uptime</span>
-                      <span className="font-medium text-black">99.98%</span>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 gap-2 mb-2">
+                    <div className="border border-gray-200 rounded p-2">
+                      <div className="text-xs text-gray-600">Uptime</div>
+                      <div className="text-sm font-medium text-black">
+                        99.98%
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Total Checks</span>
-                      <span className="font-medium text-black">1,247</span>
+                    <div className="border border-gray-200 rounded p-2">
+                      <div className="text-xs text-gray-600">Total Checks</div>
+                      <div className="text-sm font-medium text-black">
+                        1,247
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">
-                        Average Response Time
-                      </span>
-                      <span className="font-medium text-black">145ms</span>
+                    <div className="border border-gray-200 rounded p-2">
+                      <div className="text-xs text-gray-600">Avg Response</div>
+                      <div className="text-sm font-medium text-black">
+                        145ms
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="border border-gray-200 rounded p-2">
+                      <div className="text-xs text-gray-600">Tools</div>
+                      <div className="text-sm font-medium text-black">12</div>
+                    </div>
+                  </div>
+
+                  {/* Dates */}
+                  <div className="border border-gray-200 rounded p-2">
+                    <div className="flex justify-between items-center text-xs mb-1">
                       <span className="text-gray-600">Last Checked</span>
                       <span className="font-medium text-black">
-                        2 minutes ago
+                        Today at 2:45 PM
                       </span>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
+                    <div className="flex justify-between items-center text-xs">
                       <span className="text-gray-600">Monitoring Since</span>
                       <span className="font-medium text-black">
-                        Jan 15, 2025
+                        January 15th at 9:30 AM
                       </span>
                     </div>
                   </div>
@@ -366,8 +411,118 @@ function Landing() {
           </div>
         </div>
 
+        {/* Tools View Section */}
+        <div className="mt-12 mb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Browser Mockup - Tools View */}
+            <div className="border border-gray-300 rounded-lg overflow-hidden shadow-md bg-white order-2 lg:order-1">
+              {/* Browser Chrome */}
+              <div className="bg-gray-50 border-b border-gray-300 px-3 py-2">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                </div>
+                <div className="bg-white border border-gray-300 rounded-md px-2 py-1 text-xs text-gray-600 font-mono">
+                  mcpmon.io/m/abc123
+                </div>
+              </div>
+
+              {/* Mock Status Page - Tools View */}
+              <div className="bg-white p-4">
+                {/* Main Info Box */}
+                <div className="border border-gray-200 rounded-lg p-4 bg-white mb-3">
+                  {/* Status Dot & Info */}
+                  <div className="mb-3">
+                    <span className="w-4 h-2.5 rounded-full inline-block bg-green-200 mb-2"></span>
+                    <h1 className="text-lg font-medium text-black mb-1">
+                      Production API Server
+                    </h1>
+                    <p className="text-xs text-gray-600 mb-1">
+                      MCP server for production services
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      https://api.example.com/mcp
+                    </p>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="flex gap-1 mb-3">
+                    <div className="flex items-center gap-1 px-2 py-1 border border-gray-300 bg-white text-gray-600 rounded text-xs">
+                      <BarChart2 size={12} />
+                      <span>Stats</span>
+                    </div>
+                    <div className="flex items-center gap-1 px-2 py-1 bg-black text-white rounded text-xs font-medium">
+                      <Tool size={12} />
+                      <span>Tools</span>
+                    </div>
+                  </div>
+
+                  {/* Tools Header */}
+                  <div className="mb-2">
+                    <h2 className="text-sm font-medium text-black">
+                      6 Tools Discovered
+                    </h2>
+                  </div>
+
+                  {/* Tools Grid */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        search_code
+                      </h3>
+                    </div>
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        read_file
+                      </h3>
+                    </div>
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        list_directory
+                      </h3>
+                    </div>
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        execute_command
+                      </h3>
+                    </div>
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        create_file
+                      </h3>
+                    </div>
+                    <div className="border border-gray-200 rounded p-2 hover:border-gray-400 transition-colors">
+                      <h3 className="text-xs font-medium text-black truncate">
+                        update_file
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Content */}
+            <div className="order-1 lg:order-2">
+              <h2 className="text-2xl font-semibold text-black mb-4">
+                Discover Available Tools
+              </h2>
+              <p className="text-gray-600 mb-4 leading-relaxed">
+                Get complete visibility into your MCP server's capabilities. The
+                tools view automatically discovers and displays all available
+                tools exposed by your server.
+              </p>
+              <p className="text-gray-600 leading-relaxed">
+                Perfect for documentation and helping users understand what your
+                MCP server can do. Each tool can be clicked to view detailed
+                information.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* CTA Section */}
-        <div className="mt-20 mb-8">
+        <div className="mb-8">
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <h2 className="text-xl font-medium text-black mb-4">
               Building for the MCP Community

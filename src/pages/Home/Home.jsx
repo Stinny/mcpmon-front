@@ -23,6 +23,13 @@ function Home() {
     activeMonitors: data?.data?.activeMonitors ?? "---",
   };
 
+  const formatResponseTime = (ms) => {
+    if (ms >= 1000) {
+      return `${(ms / 1000).toFixed(2)}s`;
+    }
+    return `${ms}ms`;
+  };
+
   // Show loading state
   if (isLoading) {
     return (
@@ -79,7 +86,7 @@ function Home() {
           <p className="text-2xl font-semibold text-black">
             {stats.avgResponseTime === "---"
               ? stats.avgResponseTime
-              : `${stats.avgResponseTime} ms`}
+              : formatResponseTime(stats.avgResponseTime)}
           </p>
         </div>
 

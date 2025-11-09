@@ -7,8 +7,8 @@ function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="pt-4 px-4 md:px-6 bg-white mb-12 md:mb-20">
-      <nav className="max-w-5xl mx-auto border border-gray-200 bg-white rounded-lg shadow-sm">
+    <div className="pt-4 px-4 md:px-6 bg-white mb-10 md:mb-20">
+      <nav className="max-w-5xl mx-auto border border-gray-200 bg-white rounded-lg">
         <div className="px-4 py-2">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-0">

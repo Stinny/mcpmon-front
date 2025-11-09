@@ -126,6 +126,28 @@ function Monitors() {
     }
   };
 
+  const getStatusTooltip = (status) => {
+    switch (status) {
+      case "up":
+      case "online":
+        return "This MCP server is online";
+      case "down":
+      case "offline":
+        return "This MCP server is offline";
+      case "paused":
+        return "This MCP server is paused";
+      default:
+        return "This MCP server status is unknown";
+    }
+  };
+
+  const formatResponseTime = (ms) => {
+    if (ms >= 1000) {
+      return `${(ms / 1000).toFixed(2)}s`;
+    }
+    return `${ms}ms`;
+  };
+
   const getMenuItems = (monitor) => [
     {
       key: "edit",
@@ -247,14 +269,11 @@ function Monitors() {
             >
               <div className="flex justify-between items-start mb-3">
                 <Tooltip
-                  title={
-                    monitor.status.charAt(0).toUpperCase() +
-                    monitor.status.slice(1)
-                  }
-                  color="#000000"
+                  title={getStatusTooltip(monitor.status)}
+                  color="#ffffff"
                 >
                   <span
-                    className={`w-3 h-3 rounded-full cursor-pointer ${getStatusColor(
+                    className={`w-5 h-3 rounded-full cursor-pointer ${getStatusColor(
                       monitor.status,
                     )}`}
                   ></span>
@@ -274,7 +293,7 @@ function Monitors() {
                 {monitor.name}
               </h3>
               <p
-                className="text-sm text-gray-600 mb-4 truncate"
+                className="text-sm text-black mb-4 truncate"
                 title={monitor.url}
               >
                 {monitor.url}
@@ -295,9 +314,9 @@ function Monitors() {
                 </div>
                 {monitor.averageResponseTime > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Avg Response</span>
+                    <span className="text-gray-600">Response</span>
                     <span className="font-medium text-black">
-                      {monitor.averageResponseTime}ms
+                      {formatResponseTime(monitor.averageResponseTime)}
                     </span>
                   </div>
                 )}

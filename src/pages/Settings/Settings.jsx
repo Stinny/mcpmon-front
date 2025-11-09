@@ -13,6 +13,9 @@ import {
   useUpdateProfileMutation,
   useUpdateAlertPreferencesMutation,
   useDeleteAccountMutation,
+  useSendPhoneVerificationMutation,
+  useVerifyPhoneMutation,
+  useResendPhoneVerificationMutation,
 } from "../../api/apiSlice";
 
 function Settings() {
@@ -25,6 +28,11 @@ function Settings() {
     useUpdateAlertPreferencesMutation();
   const [deleteAccount, { isLoading: isDeletingAccount }] =
     useDeleteAccountMutation();
+  const [sendPhoneVerification, { isLoading: isSendingVerification }] =
+    useSendPhoneVerificationMutation();
+  const [verifyPhone, { isLoading: isVerifying }] = useVerifyPhoneMutation();
+  const [resendPhoneVerification, { isLoading: isResending }] =
+    useResendPhoneVerificationMutation();
 
   // Edit mode states
   const [isEditingAccount, setIsEditingAccount] = useState(false);
@@ -58,6 +66,13 @@ function Settings() {
   const [userInput, setUserInput] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
+  // Phone verification modal
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verifyError, setVerifyError] = useState("");
+  const [verifySuccess, setVerifySuccess] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
+
   // Update state when user data changes
   useEffect(() => {
     if (user) {
@@ -70,6 +85,78 @@ function Settings() {
       setSmsAlerts(user.smsAlertsEnabled ?? false);
     }
   }, [user]);
+
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => {
+        setResendCountdown(resendCountdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
+
+  const handleOpenVerifyModal = () => {
+    setVerificationCode("");
+    setVerifyError("");
+    setVerifySuccess("");
+    setIsVerifyModalOpen(true);
+  };
+
+  const handleVerifyPhone = async () => {
+    setVerifyError("");
+    setVerifySuccess("");
+
+    if (!verificationCode || verificationCode.length !== 6) {
+      setVerifyError("Please enter a valid 6-digit code");
+      return;
+    }
+
+    try {
+      const response = await verifyPhone(verificationCode).unwrap();
+      // Update Redux store with new user data
+      dispatch(updateUser(response.data));
+
+      setVerifySuccess("Phone number verified successfully!");
+      setTimeout(() => {
+        setIsVerifyModalOpen(false);
+        setVerificationCode("");
+        setVerifySuccess("");
+      }, 1500);
+    } catch (err) {
+      setVerifyError(
+        err?.data?.message || "Failed to verify code. Please try again.",
+      );
+    }
+  };
+
+  const handleResendCode = async () => {
+    setVerifyError("");
+    setVerifySuccess("");
+
+    try {
+      await resendPhoneVerification().unwrap();
+      setVerifySuccess("New code sent to your phone!");
+      setResendCountdown(60); // 60 second countdown
+      setTimeout(() => setVerifySuccess(""), 3000);
+    } catch (err) {
+      if (err?.data?.secondsRemaining) {
+        setResendCountdown(err.data.secondsRemaining);
+        setVerifyError(err.data.message);
+      } else {
+        setVerifyError(
+          err?.data?.message || "Failed to resend code. Please try again.",
+        );
+      }
+    }
+  };
+
+  const handleCloseVerifyModal = () => {
+    setIsVerifyModalOpen(false);
+    setVerificationCode("");
+    setVerifyError("");
+    setVerifySuccess("");
+  };
 
   const handleSaveAccount = async () => {
     setAccountError("");
@@ -205,13 +292,24 @@ function Settings() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-black">Account</h2>
               {!isEditingAccount ? (
-                <button
-                  onClick={() => setIsEditingAccount(true)}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
-                >
-                  <Edit2 size={14} />
-                  Edit
-                </button>
+                <div className="flex items-center gap-2">
+                  {accountData.phone && !user?.isPhoneVerified && (
+                    <button
+                      onClick={handleOpenVerifyModal}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-white bg-black hover:bg-gray-800 transition-colors rounded-md"
+                    >
+                      <Check size={14} />
+                      Verify Phone
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsEditingAccount(true)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-black border border-gray-300 hover:bg-gray-50 transition-colors rounded-md"
+                  >
+                    <Edit2 size={14} />
+                    Edit
+                  </button>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <button
@@ -275,9 +373,22 @@ function Settings() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Phone Number
-                </label>
+                <div className="flex items-center gap-2 mb-1">
+                  <label className="block text-sm text-gray-600">
+                    Phone Number
+                  </label>
+                  {accountData.phone && !isEditingAccount && (
+                    <span
+                      className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${
+                        user?.isPhoneVerified
+                          ? "bg-green-100 text-green-700"
+                          : "bg-orange-100 text-orange-700"
+                      }`}
+                    >
+                      {user?.isPhoneVerified ? "Verified" : "Unverified"}
+                    </span>
+                  )}
+                </div>
                 {isEditingAccount ? (
                   <input
                     type="tel"
@@ -411,17 +522,17 @@ function Settings() {
           </div>
 
           {/* Delete Account Section */}
-          <div className="border border-red-200 rounded-lg p-6 bg-red-50">
+          <div className="border border-gray-200 rounded-lg p-6 bg-white">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle size={20} className="text-red-600" />
-              <h2 className="text-lg font-medium text-red-900">Danger Zone</h2>
+              <h2 className="text-lg font-medium text-black">Danger Zone</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-red-900 mb-1">
+                <h3 className="text-sm font-medium text-black mb-1">
                   Delete Account
                 </h3>
-                <p className="text-sm text-red-700 mb-4">
+                <p className="text-sm text-gray-600 mb-2">
                   Once you delete your account, there is no going back. All your
                   monitors and data will be permanently deleted.
                 </p>
@@ -664,6 +775,86 @@ function Settings() {
               placeholder="Type the confirmation text"
               autoComplete="off"
             />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Phone Verification Modal */}
+      <Modal
+        title="Verify Phone Number"
+        open={isVerifyModalOpen}
+        onOk={handleVerifyPhone}
+        onCancel={handleCloseVerifyModal}
+        okText={isVerifying ? "Verifying..." : "Verify"}
+        cancelText="Cancel"
+        okButtonProps={{
+          loading: isVerifying,
+          disabled: !verificationCode || verificationCode.length !== 6,
+          style: {
+            backgroundColor: !verificationCode || verificationCode.length !== 6 ? "#e5e7eb" : "#000000",
+            borderColor: !verificationCode || verificationCode.length !== 6 ? "#e5e7eb" : "#000000",
+            color: !verificationCode || verificationCode.length !== 6 ? "#9ca3af" : "#ffffff",
+            cursor: !verificationCode || verificationCode.length !== 6 ? "not-allowed" : "pointer",
+          },
+        }}
+        cancelButtonProps={{
+          style: {
+            color: "#000000",
+            borderColor: "#d1d5db",
+          },
+        }}
+      >
+        <div className="space-y-4 py-4">
+          <p className="text-sm text-gray-700">
+            A 6-digit verification code has been sent to{" "}
+            <strong>{user?.phone}</strong>. Please enter it below:
+          </p>
+
+          {verifyError && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
+              {verifyError}
+            </div>
+          )}
+
+          {verifySuccess && (
+            <div className="p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md">
+              {verifySuccess}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm text-gray-700 mb-2">
+              Verification Code
+            </label>
+            <input
+              type="text"
+              value={verificationCode}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                setVerificationCode(value);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-black focus:border-transparent text-center tracking-widest font-mono"
+              placeholder="000000"
+              maxLength={6}
+              autoComplete="off"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Code expires in 10 minutes
+            </p>
+          </div>
+
+          <div className="text-center">
+            <button
+              onClick={handleResendCode}
+              disabled={resendCountdown > 0 || isResending}
+              className="text-sm text-black hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed"
+            >
+              {isResending
+                ? "Sending..."
+                : resendCountdown > 0
+                  ? `Resend code in ${resendCountdown}s`
+                  : "Resend code"}
+            </button>
           </div>
         </div>
       </Modal>
