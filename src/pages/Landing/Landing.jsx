@@ -258,7 +258,7 @@ function Landing() {
                 <div className="flex justify-between items-start mb-3">
                   <Tooltip
                     title={getStatusTooltip(monitor.status)}
-                    color="#000000"
+                    color="#ffffff"
                   >
                     <span
                       className={`w-5 h-3 rounded-full cursor-pointer ${getStatusColor(monitor.status)}`}
