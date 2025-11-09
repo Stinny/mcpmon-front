@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { TbDeviceHeartMonitor } from "react-icons/tb";
+import { SiSlack } from "react-icons/si";
 import { useSubmitContactMutation } from "../../api/apiSlice";
 
 function Contact() {
@@ -47,10 +48,34 @@ function Contact() {
         </Link>
 
         <h1 className="text-lg font-normal text-black mb-2">Get in touch</h1>
-        <p className="text-sm text-gray-600 mb-8">
+        <p className="text-sm text-gray-600 mb-6">
           Have questions, feedback, or feature requests? We'd love to hear from
           you.
         </p>
+
+        {/* Slack Community Button */}
+        <div className="mb-8">
+          <a
+            href="https://join.slack.com/t/mcpmon/shared_invite/zt-3h6r8moef-~Y2ja5cvu6j6ZMy9570uBQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 border border-gray-300 text-black hover:bg-black hover:text-white transition-colors rounded-md text-sm font-medium"
+          >
+            <SiSlack size={18} />
+            Chat with us on Slack
+          </a>
+        </div>
+
+        <div className="relative mb-8">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-200"></div>
+          </div>
+          <div className="relative flex justify-center text-xs">
+            <span className="px-2 bg-white text-gray-500">
+              Or send a message
+            </span>
+          </div>
+        </div>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">

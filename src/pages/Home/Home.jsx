@@ -6,7 +6,6 @@ import {
   TrendingUp,
   Monitor,
   CheckCircle,
-  Bell,
 } from "react-feather";
 import { selectCurrentUser } from "../../features/authSlice";
 import { useGetDashboardStatsQuery } from "../../api/apiSlice";
@@ -77,12 +76,7 @@ function Home() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Average Response Time */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-              <Activity size={18} className="text-black" />
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 mb-1">Avg Response Time</p>
+          <p className="text-sm text-gray-600 mb-1">Average Response</p>
           <p className="text-2xl font-semibold text-black">
             {stats.avgResponseTime === "---"
               ? stats.avgResponseTime
@@ -92,12 +86,7 @@ function Home() {
 
         {/* Average Uptime */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-              <TrendingUp size={18} className="text-black" />
-            </div>
-          </div>
-          <p className="text-sm text-gray-600 mb-1">Avg Uptime</p>
+          <p className="text-sm text-gray-600 mb-1">Average Uptime</p>
           <p className="text-2xl font-semibold text-black">
             {stats.avgUptime === "---"
               ? stats.avgUptime
@@ -107,11 +96,6 @@ function Home() {
 
         {/* Total Monitors */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-              <Monitor size={18} className="text-black" />
-            </div>
-          </div>
           <p className="text-sm text-gray-600 mb-1">Total Monitors</p>
           <p className="text-2xl font-semibold text-black">
             {stats.totalMonitors}
@@ -120,11 +104,6 @@ function Home() {
 
         {/* Active Monitors */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white">
-          <div className="flex items-center justify-between mb-4">
-            <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center">
-              <CheckCircle size={18} className="text-black" />
-            </div>
-          </div>
           <p className="text-sm text-gray-600 mb-1">Active Monitors</p>
           <p className="text-2xl font-semibold text-black">
             {stats.activeMonitors}
@@ -132,36 +111,10 @@ function Home() {
         </div>
       </div>
 
-      {/* Quick Actions / Recent Activity Section (Optional) */}
-      <div className="border border-gray-200 rounded-lg p-6 bg-white">
-        <h2 className="text-lg font-medium text-black mb-4">Quick Actions</h2>
-        <div className="flex flex-col gap-3">
-          <Link
-            to="/monitors"
-            className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Monitor size={18} className="text-gray-600" />
-            <div>
-              <p className="text-sm font-medium text-black">
-                View All Monitors
-              </p>
-              <p className="text-xs text-gray-500">
-                Manage and monitor your MCP servers
-              </p>
-            </div>
-          </Link>
-          <Link
-            to="/settings"
-            className="flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Bell size={18} className="text-gray-600" />
-            <div>
-              <p className="text-sm font-medium text-black">Configure Alerts</p>
-              <p className="text-xs text-gray-500">
-                Set up email and SMS notifications
-              </p>
-            </div>
-          </Link>
+      {/* Placeholder Section */}
+      <div className="border border-gray-200 rounded-lg p-6">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-20 flex flex-col items-center justify-center h-96">
+          <p className="text-sm text-black">More stuff on the way!</p>
         </div>
       </div>
     </div>

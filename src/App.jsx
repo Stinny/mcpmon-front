@@ -18,6 +18,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import VerifyEmail from "./pages/VerifyEmail/VerifyEmail";
+import OAuthCallback from "./pages/OAuthCallback/OAuthCallback";
 import Pricing from "./pages/Pricing/Pricing";
 import Monitors from "./pages/Monitors/Monitors";
 import AddMonitor from "./pages/Monitors/AddMonitor";
@@ -202,7 +203,7 @@ function AppContent() {
     "/documentation",
     "/contact",
   ];
-  const hideNavbarRoutes = authRoutes.concat(["/verify-email", "/m"]);
+  const hideNavbarRoutes = authRoutes.concat(["/verify-email", "/auth", "/m"]);
   const showNavbar =
     !showSidebar &&
     !hideNavbarRoutes.some(
@@ -241,6 +242,7 @@ function AppContent() {
               </PublicRoute>
             }
           />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           <Route path="/m/:monitorId" element={<MonitorStatus />} />
           <Route path="/pricing" element={<Pricing />} />

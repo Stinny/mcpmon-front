@@ -373,20 +373,20 @@ function Landing() {
                       </div>
                     </div>
                     <div className="border border-gray-200 rounded p-2">
-                      <div className="text-xs text-gray-600">Total Checks</div>
+                      <div className="text-xs text-gray-600">Checks</div>
                       <div className="text-sm font-medium text-black">
                         1,247
                       </div>
                     </div>
                     <div className="border border-gray-200 rounded p-2">
-                      <div className="text-xs text-gray-600">Avg Response</div>
+                      <div className="text-xs text-gray-600">Response</div>
                       <div className="text-sm font-medium text-black">
                         145ms
                       </div>
                     </div>
                     <div className="border border-gray-200 rounded p-2">
                       <div className="text-xs text-gray-600">Tools</div>
-                      <div className="text-sm font-medium text-black">12</div>
+                      <div className="text-sm font-medium text-black">6</div>
                     </div>
                   </div>
 

@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import { TbDeviceHeartMonitor } from "react-icons/tb";
 import { Tooltip, Modal, Pagination, Tabs } from "antd";
-import { BarChart2, Tool, Lock } from "react-feather";
+import { BarChart2, Tool, Lock, Copy, Check } from "react-feather";
+import { selectCurrentUser } from "../../features/authSlice";
+import { useGetMonitorsQuery } from "../../api/apiSlice";
 
 const MonitorStatus = () => {
   const { monitorId } = useParams();
+  const user = useSelector(selectCurrentUser);
+  const { data: userMonitorsData } = useGetMonitorsQuery(undefined, {
+    skip: !user, // Only fetch if user is logged in
+  });
   const [monitor, setMonitor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTool, setSelectedTool] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [copySuccess, setCopySuccess] = useState(false);
   const toolsPerPage = 12;
 
   useEffect(() => {
@@ -124,6 +132,21 @@ const MonitorStatus = () => {
     }
     return `${ms}ms`;
   };
+
+  const handleCopyLink = async () => {
+    const currentUrl = window.location.href;
+    try {
+      await navigator.clipboard.writeText(currentUrl);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
+  };
+
+  // Check if logged in user owns this monitor
+  const userMonitors = userMonitorsData?.data || [];
+  const isOwner = user && userMonitors.some(m => m._id === monitorId);
 
   if (loading) {
     return (
@@ -283,6 +306,36 @@ const MonitorStatus = () => {
   return (
     <div className="min-h-screen bg-white py-20 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* Share Banner - Only visible to owner */}
+        {isOwner && (
+          <div className="border border-gray-200 rounded-lg p-4 mb-4 bg-white shadow-sm flex items-center justify-between">
+            <div className="flex-1">
+              <p className="text-sm text-black font-medium mb-1">
+                Share this status page
+              </p>
+              <p className="text-xs text-gray-600">
+                Anyone with the link can view your monitor's status and uptime
+              </p>
+            </div>
+            <button
+              onClick={handleCopyLink}
+              className="ml-4 flex items-center gap-2 px-4 py-2 border border-gray-300 text-black hover:bg-black hover:text-white transition-colors rounded-md text-sm font-medium whitespace-nowrap"
+            >
+              {copySuccess ? (
+                <>
+                  <Check size={16} />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  Copy Link
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
         {/* Main Info Box */}
         <div className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm mb-4 relative">
           {/* Auth Badge */}
